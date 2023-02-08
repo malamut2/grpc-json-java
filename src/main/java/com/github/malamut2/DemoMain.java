@@ -22,7 +22,7 @@ public class DemoMain {
         return MethodDescriptor.<DynamicMessage, DynamicMessage>newBuilder()
                 .setType(getMethodTypeFromDesc(methodDesc))
                 .setFullMethodName(MethodDescriptor.generateFullMethodName(
-                        methodDesc.getFullName(), methodDesc.getName()))
+                        methodDesc.getService().getFullName(), methodDesc.getName()))
                 .setRequestMarshaller(ProtoUtils.marshaller(
                         DynamicMessage.getDefaultInstance(methodDesc.getInputType())))
                 .setResponseMarshaller(ProtoUtils.marshaller(
