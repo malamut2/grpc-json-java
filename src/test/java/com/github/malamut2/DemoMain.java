@@ -5,9 +5,15 @@ import com.google.protobuf.Descriptors;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * DemoMain demonstrates the use of the grpc-json-java library. Prerequisite is a running gRPC server which
+ * supports reflection. DemoMain will connect to this server, and execute a method of your choice.
+ */
 public class DemoMain {
 
     public static void main(String[] args) throws InterruptedException, IOException {
+
+        // --- Some boilerplate code to make this short tool easy to use
 
         if (args.length != 5) {
             System.err.println("""
@@ -32,15 +38,38 @@ public class DemoMain {
                         + " with input parameters " + jsonInputParameters
         );
 
+        // --- Create an instance of GrpcRemoteServer first. The server will not be contacted yet.
+
         GrpcServerRemote server = new GrpcServerRemote(host, port);
+
+        // --- Connect to the server, and use reflection to get a list of all services hosted by this server.
+
         List<String> services = server.getServiceNames();
+
+        // --- Print a list of those services to the screen.
+
         System.out.println("Services: " + services);
 
+        // --- Filter away all infrastructure services. In most cases, that leaves only one service, which we will use.
+
         String fullServiceName = services.stream().filter(name -> !name.startsWith("grpc.")).findFirst().orElse(null);
+
+        // --- Connect to the server, and use reflection to get full information on a single selected service.
+        //     This method can be called independently. If you know the fully-qualified service name,
+        //     there is no need to call getServiceNames() first.
+
         GrpcServiceRemote service = server.getService(fullServiceName);
 
+        // --- For the downloaded service information, get the method we want to call
+
         Descriptors.MethodDescriptor method = service.findMethod(serviceName, methodName);
+
+        // --- Perform a remote call to that method, using our parameters in JSON format
+
         Object result = service.request(method, jsonInputParameters);
+
+        // --- The result object will be a fully-valid gRPC object. When printing to screen, it will be formatted as JSON.
+
         System.out.println("Result:\n" + result);
 
     }
