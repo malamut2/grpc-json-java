@@ -33,7 +33,7 @@ Have a look at the demo class `DemoMain` and at the classes' javadoc code to
 learn how to use the code. `DemoMain` contains a main method, so it can be
 called as such:
 
-`java DemoMain localhost 6969 myService myMethod {\"myParameter\":123}`
+`java -cp <classpath with all dependencies> com.github.malamut2.DemoMain localhost 6969 myService myMethod {\"myParameter\":123}`
 
 This will contact a gRPC server running on your local machine on port `6969`,
 and execute `myService.myMethod`, using default input parameters except for
