@@ -13,6 +13,12 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
+/**
+ * {@link GrpcServiceRemote} models a single service which resides on a remote gRPC server. It can be used to find out what
+ * sub-services the service offers, including all structural information such as method names. It can also be used
+ * to remotely call a method, using json-style input parameters, and to obtain the result of the method call.
+ * Use {@link GrpcServerRemote#getService(String)} to obtain instances of this class.
+ */
 public class GrpcServiceRemote {
 
     private final Channel channel;
@@ -23,10 +29,23 @@ public class GrpcServiceRemote {
         this.serviceDescriptors = serviceDescriptors;
     }
 
+    /**
+     * Obtains a single (sub-)service.
+     * @param serviceName the name of the (sub-)service, not necessarily fully qualified.
+     * @return a protobuf {@link com.google.protobuf.Descriptors.ServiceDescriptor} instance describing 
+     * the selected (sub-)service, or null if none has been found.
+     */
     public Descriptors.ServiceDescriptor findService(String serviceName) {
         return find(serviceDescriptors, Descriptors.ServiceDescriptor::getFullName, serviceName);
     }
 
+    /**
+     * Obtains a single method for remote execution on the remote gRPC server.
+     * @param serviceName the name of a (sub-)service, not necessarily fully qualified.
+     * @param methodName the name of a method offered by the (sub-)service, not necessarily fully qualified.
+     * @return a protobuf {@link com.google.protobuf.Descriptors.MethodDescriptor} instance
+     * describing the selected method, or null if none has been found.
+     */
     public Descriptors.MethodDescriptor findMethod(String serviceName, String methodName) {
         Descriptors.ServiceDescriptor service = findService(serviceName);
         if (service == null) {
@@ -36,8 +55,18 @@ public class GrpcServiceRemote {
         return find(methods, Descriptors.MethodDescriptor::getFullName, methodName);
     }
 
+    /**
+     * Performs a remote execution on a method which has been previously obtained 
+     * using {@link #findMethod(String, String)}.
+     * @param method the method which shall be executed remotely.
+     * @param json the parameters to pass to the method, in JSON format.
+     * @return the protobuf message returned by the remote gRPC server
+     * @throws IOException if any problem occurs communicating with the remote gRPC server.
+     * @throws InterruptedException if the current thread is interrupted while we wait for replies from the
+     * remote gRPC server.
+     */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public Message request(Descriptors.MethodDescriptor method, String json) throws InterruptedException, IOException {
+    public Message request(Descriptors.MethodDescriptor method, String json) throws IOException, InterruptedException {
 
         Descriptors.Descriptor inputType = method.getInputType();
         DynamicMessage.Builder inputParamBuilder = DynamicMessage.newBuilder(inputType);

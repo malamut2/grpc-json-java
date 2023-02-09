@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * GrpcServerRemote models a remote gRPC server, and accesses the remote server's reflection interface to get
+ * {@link GrpcServerRemote} models a remote gRPC server, and accesses the remote server's reflection interface to get
  * full interface syntax for the remote server's services, methods, and message types.
  */
 public class GrpcServerRemote {
@@ -24,7 +24,7 @@ public class GrpcServerRemote {
     private final ServerReflectionGrpc.ServerReflectionStub serverReflection;
 
     /**
-     * Creates a new instance of GrpcServerRemote.
+     * Creates a new instance of {@link GrpcServerRemote}.
      * @param channel the channel to use for communication with the remote gRPC server. The channel is just stored
      *                on object construction, and will only actually be used by the get*() methods.
      */
@@ -59,10 +59,10 @@ public class GrpcServerRemote {
     }
 
     /**
-     * Contacts the remote gRPC server, and obtains an instance of GrpcServiceRemote which can subsequently be used
+     * Contacts the remote gRPC server, and obtains an instance of {@link GrpcServiceRemote} which can subsequently be used
      * to send requests to a selected service of the remote gRPC server.
-     * @param name the full name of the gRPC service for which we want to obtain a GrpcServiceRemote instance.
-     * @return a GrpcServiceRemote instance for the given service.
+     * @param name the full name of the gRPC service for which we want to obtain a {@link GrpcServiceRemote} instance.
+     * @return a {@link GrpcServiceRemote} instance for the given service.
      * @throws IOException if any problem occurs communicating with the remote gRPC server.
      * @throws InterruptedException if the current thread is interrupted while we wait for replies from the
      * remote gRPC server.

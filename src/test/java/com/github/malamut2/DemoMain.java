@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * DemoMain demonstrates the use of the grpc-json-java library. Prerequisite is a running gRPC server which
+ * {@link DemoMain} demonstrates the use of the grpc-json-java library. Prerequisite is a running gRPC server which
  * supports reflection. DemoMain will connect to this server, and execute a method of your choice.
  */
 public class DemoMain {
