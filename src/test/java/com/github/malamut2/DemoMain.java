@@ -1,6 +1,8 @@
 package com.github.malamut2;
 
 import com.google.protobuf.Descriptors;
+import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
 
 import java.io.IOException;
 import java.util.List;
@@ -66,11 +68,11 @@ public class DemoMain {
 
         // --- Perform a remote call to that method, using our parameters in JSON format
 
-        Object result = service.request(method, jsonInputParameters);
+        Message result = service.request(method, jsonInputParameters);
 
-        // --- The result object will be a fully-valid gRPC object. When printing to screen, it will be formatted as JSON.
+        // --- The result object will be a fully-valid gRPC message. We output it in JSON format.
 
-        System.out.println("Result:\n" + result);
+        System.out.println("Result:\n" + JsonFormat.printer().print(result));
 
     }
 

@@ -2,6 +2,7 @@ package com.github.malamut2;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import io.grpc.*;
 import io.grpc.protobuf.ProtoUtils;
@@ -17,7 +18,7 @@ public class GrpcServiceRemote {
     private final Channel channel;
     private final List<Descriptors.ServiceDescriptor> serviceDescriptors;
 
-    public GrpcServiceRemote(Channel channel, List<Descriptors.ServiceDescriptor> serviceDescriptors) {
+    protected GrpcServiceRemote(Channel channel, List<Descriptors.ServiceDescriptor> serviceDescriptors) {
         this.channel = channel;
         this.serviceDescriptors = serviceDescriptors;
     }
@@ -36,7 +37,7 @@ public class GrpcServiceRemote {
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public Object request(Descriptors.MethodDescriptor method, String json) throws InterruptedException, IOException {
+    public Message request(Descriptors.MethodDescriptor method, String json) throws InterruptedException, IOException {
 
         Descriptors.Descriptor inputType = method.getInputType();
         DynamicMessage.Builder inputParamBuilder = DynamicMessage.newBuilder(inputType);
@@ -46,7 +47,7 @@ public class GrpcServiceRemote {
         Metadata metadata = new Metadata();
         metadata.put(Metadata.Key.of("content-type", Metadata.ASCII_STRING_MARSHALLER), "application/grpc");
         ClientCall clientCall = channel.newCall(toGrpc(method), CallOptions.DEFAULT);
-        ClientCallListener listener = new ClientCallListener();
+        ClientCallListener<Message> listener = new ClientCallListener<>();
         clientCall.start(listener, metadata);
         clientCall.sendMessage(inputParameters);
         clientCall.halfClose();
