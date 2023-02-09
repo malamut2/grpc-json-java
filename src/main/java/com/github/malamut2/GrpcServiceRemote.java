@@ -59,15 +59,7 @@ public class GrpcServiceRemote {
             if (field == null) {
                 throw new IllegalArgumentException("Invalid field name: " + entry.getKey());
             }
-            Object value = entry.getValue();
-            if (value instanceof Double) {
-                value = switch(field.getJavaType()) {
-                    case INT -> ((Double) value).intValue();
-                    case FLOAT -> ((Double) value).floatValue();
-                    case LONG -> ((Double) value).longValue();
-                    default -> value;
-                };
-            }
+            Object value = transformFieldValue(field, entry.getValue());
             inputParamBuilder.setField(field, value);
         }
         DynamicMessage inputParameters = inputParamBuilder.build();
@@ -89,8 +81,27 @@ public class GrpcServiceRemote {
         return request(method, (Map<String, Object>)JsonParser.parse(json));
     }
 
+    private static Object transformFieldValue(Descriptors.FieldDescriptor field, Object value) {
+        if (value instanceof Double) {  // in Json, all numbers are of type double
+            value = switch(field.getJavaType()) {
+                case INT -> ((Double) value).intValue();
+                case FLOAT -> ((Double) value).floatValue();
+                case LONG -> ((Double) value).longValue();
+                default -> value;
+            };
+        }
+        if (field.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM) {
+            Object newValue = field.getEnumType().findValueByName(value.toString());
+            if (newValue == null) {
+                throw new IllegalArgumentException("Invalid field name / enum value combination: " + field.getName() + " / " + value);
+            }
+            value = newValue;
+        }
+        return value;
+    }
+
     // protobuf MethodDescriptor -> grpc MethodDescriptor
-    // these two static methods are taken mostly from https://stackoverflow.com/a/61144510/725192
+    // --- begin methods taken mostly from https://stackoverflow.com/a/61144510/725192
     @SuppressWarnings("rawtypes")
     private static MethodDescriptor toGrpc(Descriptors.MethodDescriptor methodDesc) {
         return MethodDescriptor.<DynamicMessage, DynamicMessage>newBuilder()
@@ -117,6 +128,7 @@ public class GrpcServiceRemote {
             return MethodDescriptor.MethodType.BIDI_STREAMING;
         }
     }
+    // --- end methods taken mostly from https://stackoverflow.com/a/61144510/725192
 
     private static class ClientCallListener<T> extends ClientCall.Listener<T> {
 
