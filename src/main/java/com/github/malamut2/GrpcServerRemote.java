@@ -81,6 +81,7 @@ public class GrpcServerRemote {
         private List<String> result = null;
         private Throwable error = null;
         private final CountDownLatch transmissionOngoing = new CountDownLatch(1);
+
         @Override
         public void onNext(ServerReflectionResponse serverReflectionResponse) {
             if (serverReflectionResponse.hasListServicesResponse()) {
@@ -125,6 +126,7 @@ public class GrpcServerRemote {
         private List<Descriptors.ServiceDescriptor> result = null;
         private Throwable error = null;
         private final CountDownLatch transmissionOngoing = new CountDownLatch(1);
+
         @Override
         public void onNext(ServerReflectionResponse serverReflectionResponse) {
             if (serverReflectionResponse.hasFileDescriptorResponse()) {
